@@ -1,6 +1,6 @@
 import os
 import sys
-from consts import *
+import consts
 import pygame
 import requests
 from tkinter import *
@@ -8,9 +8,9 @@ from tkinter import ttk
 
 
 def get_txt(mod, address):
-    if mod in all_map_mods:
-        current_mode = mod
-        address_lox = address
+    if mod in consts.all_map_mods:
+        consts.current_mode = mod
+        consts.address_lox = address
 
 
 def settings():
@@ -31,7 +31,7 @@ def settings():
 
 
 settings()
-geocoder_request = f"http://geocode-maps.yandex.ru/1.x/?apikey={apikey}&geocode={address_lox}&format=json"
+geocoder_request = f"http://geocode-maps.yandex.ru/1.x/?apikey={consts.apikey}&geocode={consts.address_lox}&format=json"
 response = requests.get(geocoder_request)
 if response:
     json_response = response.json()
@@ -44,9 +44,9 @@ else:
     print("Ошибка выполнения запроса:")
     print(geocoder_request)
     print("Http статус:", response.status_code, "(", response.reason, ")")
-coords_in_map = ','.join(f'{toponym_coodrinates}')
+consts.coords_in_map = str(toponym_coodrinates).replace(' ', ',')
 
-map_request = f"http://static-maps.yandex.ru/1.x/?ll={coords_in_map}&spn={scale}&l=mod"
+map_request = f"http://static-maps.yandex.ru/1.x/?ll={consts.coords_in_map}&spn={consts.scale}&l={consts.current_mode}"
 response = requests.get(map_request)
 
 if not response:
@@ -55,41 +55,41 @@ if not response:
     print("Http статус:", response.status_code, "(", response.reason, ")")
     sys.exit(1)
 
-map_file = f"map{count}.png"
+map_file = f"map{consts.count}.png"
 current_map_file = map_file
 with open(map_file, "wb") as file:
     file.write(response.content)
 
 pygame.init()
-screen = pygame.display.set_mode((w, h))
+screen = pygame.display.set_mode((consts.w, consts.h))
 screen.blit(pygame.image.load(map_file), (0, 0))
 running = True
-list_to_delete.append(map_file)
+consts.list_to_delete.append(map_file)
 while running:
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    if keys[pygame.K_UP] and (int_scale[0] >= 0 and int_scale[1] >= 0):
-        int_scale[0] -= 0.001
-        int_scale[1] -= 0.001
-        scale = f'{int_scale[0]},{int_scale[1]}'
-        map_request = f"http://static-maps.yandex.ru/1.x/?ll={coords_in_map}&spn={scale}&l=map"
+    if keys[pygame.K_UP] and (consts.int_scale[0] >= 0 and consts.int_scale[1] >= 0):
+        consts.int_scale[0] -= 0.001
+        consts.int_scale[1] -= 0.001
+        consts.scale = f'{consts.int_scale[0]},{consts.int_scale[1]}'
+        map_request = f"http://static-maps.yandex.ru/1.x/?ll={consts.coords_in_map}&spn={consts.scale}&l={consts.current_mode}"
         response = requests.get(map_request)
-        map_file = f"map{count}.png"
-        list_to_delete.append(map_file)
+        map_file = f"map{consts.count}.png"
+        consts.list_to_delete.append(map_file)
         with open(map_file, "wb") as file:
             file.write(response.content)
-        current_map_file = map_file
+        consts.current_map_file = map_file
         screen.blit(pygame.image.load(current_map_file), (0, 0))
-    if keys[pygame.K_DOWN] and (int_scale[0] <= 0.1 and int_scale[1] <= 0.1):
-        int_scale[0] += 0.001
-        int_scale[1] += 0.001
-        scale = f'{int_scale[0]},{int_scale[1]}'
-        map_request = f"http://static-maps.yandex.ru/1.x/?ll={coords_in_map}&spn={scale}&l=map"
+    if keys[pygame.K_DOWN] and (consts.int_scale[0] <= 0.1 and consts.int_scale[1] <= 0.1):
+        consts.int_scale[0] += 0.001
+        consts.int_scale[1] += 0.001
+        consts.scale = f'{consts.int_scale[0]},{consts.int_scale[1]}'
+        map_request = f"http://static-maps.yandex.ru/1.x/?ll={consts.coords_in_map}&spn={consts.scale}&l={consts.current_mode}"
         response = requests.get(map_request)
-        map_file = f"map{count}.png"
-        list_to_delete.append(map_file)
+        map_file = f"map{consts.count}.png"
+        consts.list_to_delete.append(map_file)
         with open(map_file, "wb") as file:
             file.write(response.content)
         current_map_file = map_file
@@ -106,5 +106,5 @@ while running:
 pygame.quit()
 
 # Удаляем за собой файл с изображением.
-for i in list_to_delete:
+for i in consts.list_to_delete:
     os.remove(i)
