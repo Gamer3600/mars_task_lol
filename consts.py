@@ -1,0 +1,14 @@
+scale = '0.002,0.002'
+int_scale = [0.002, 0.002]
+current_mode = ''
+center = (300, 225)
+list_to_delete = []
+w, h = 600, 450
+offset_for_coords = 3 * int_scale[0]
+count = 0
+current_map_file = None
+coords_in_map_list = [0, 0]
+coords_in_map = '0'
+address_lox = ''
+all_map_mods = ('map', 'sat', 'sat,skl')
+apikey = "40d1649f-0493-4b70-98ba-98533de7710b"
